@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Altare 云平台管家",
+    "description": "用官方 Team API Token（alt_ 前缀）把 Altare 云平台接入 DSH：13 个工具覆盖应用、电源、部署、日志、文件、变量、备份、快照、域名与端口、Job、Schedule、团队与审计，另有 altare_api 直连任意端点。按 token scope 自动鉴权，缺权限时给出可执行指引。"
+  }
+}

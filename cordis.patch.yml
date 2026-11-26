@@ -1,0 +1,17 @@
+# dsh-altare bundle patch.
+#
+# One row: this plugin's Host half. It registers 13 tools on ctx.tools
+# (altare_*), resolves the Altare team API token from the credentials seam,
+# the environment or this config, and gates every action on the token's scopes.
+#
+# Token sources, in the order `tokenSource: auto` tries them:
+#   1. this config's `altareToken` (plain text — only for throwaway tokens)
+#   2. the dsh credentials seam, addressed by `tokenRef`
+#   3. the environment variable named by `tokenRef`
+- insert:
+    - id: altare
+      name: 'dsh-altare'
+      config:
+        baseUrl: 'https://console.altare.gg/api'
+        tokenSource: auto
+        tokenRef: ALTARE_TOKEN

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Altare">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C5CFF"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0B1020"/>
+  <path d="M32 12 52 24v20L32 56 12 44V24z" fill="none" stroke="url(#g)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M32 24 43 30v12L32 48 21 42V30z" fill="url(#g)" opacity="0.18"/>
+  <path d="M25 40 32 24l7 16" fill="none" stroke="#E8ECFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27.5 35h9" stroke="#E8ECFF" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

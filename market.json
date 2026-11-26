@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "title": {
+    "zh-cn": "Altare 云平台管家",
+    "en": "Altare Cloud Manager"
+  },
+  "description": {
+    "zh-cn": "用官方 Team API Token 把 Altare 云平台接入 DeepSeek Harness：13 个工具覆盖应用、电源、部署、日志、文件、变量、备份、快照、域名与端口、Job、Schedule、团队与审计，另有 altare_api 直连任意端点。按 token scope 自动鉴权。",
+    "en": "Connect the Altare cloud platform to DeepSeek Harness with an official team API token: 13 tools cover apps, power, deploys, logs, files, variables, backups, snapshots, domains and ports, jobs, schedules, team and audit, plus altare_api for any endpoint. Every action is gated on the token's scopes."
+  },
+  "metadata": {
+    "categories": {
+      "integration": {
+        "title": { "en": "Integration", "zh-cn": "集成" }
+      },
+      "infrastructure": {
+        "title": { "en": "Infrastructure", "zh-cn": "基础设施" }
+      },
+      "developer-tools": {
+        "title": { "en": "Developer Tools", "zh-cn": "开发工具" }
+      }
+    },
+    "labels": {
+      "official-api": {
+        "title": { "en": "Official REST API", "zh-cn": "官方 REST API" }
+      },
+      "zero-deps": {
+        "title": { "en": "No runtime dependencies", "zh-cn": "零运行时依赖" }
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "dsh-altare",
+      "title": {
+        "zh-cn": "Altare 云平台管家",
+        "en": "Altare Cloud Manager"
+      },
+      "description": {
+        "zh-cn": "通过官方 API 令牌操作 Altare 云平台权限范围内的全部能力：应用与电源、GitHub 部署与预览、日志、文件系统、环境变量、备份与快照、域名与端口、Job 与 Schedule、团队成员与审计日志。每次调用按 token scope 自动鉴权，缺权限时给出补权限的具体指引；令牌支持 dsh 凭据库、环境变量与插件配置三种来源。",
+        "en": "Operate everything your Altare token is allowed to: apps and power, GitHub deploys and previews, logs, the file system, variables, backups and snapshots, domains and ports, jobs and schedules, team members and the audit log. Every call is gated on the token's scopes, with actionable guidance when one is missing. Tokens come from the dsh credentials seam, the environment or plugin config."
+      },
+      "author": "YG",
+      "homepage": "https://docs.altare.gg/altare-api",
+      "icon": "icon.svg",
+      "metadata": {
+        "category": "integration",
+        "keywords": [
+          "altare",
+          "cloud",
+          "hosting",
+          "deploy",
+          "devops",
+          "api",
+          "dsh-plugin",
+          "deepseek-harness"
+        ]
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "engines": {
+            "dsh": ">=0.1.2"
+          }
+        }
+      ]
+    }
+  ]
+}
