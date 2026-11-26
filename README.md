@@ -4,7 +4,7 @@
 
 把 [Altare](https://console.altare.gg/) 云平台的官方 API 接进 DeepSeek Harness：AI 拿到一个团队 API Token（`alt_` 开头），就能操作这个令牌**权限范围内的全部能力**——应用与电源、GitHub 部署与预览、日志、文件系统、环境变量、备份与快照、域名与端口、Job 与 Schedule、团队成员与审计日志。
 
-零运行时依赖，只调用官方 REST API（`https://console.altare.gg/api`）。
+零运行时依赖，只调用官方 REST API（`https://console.altare.gg/api`）。安装后在设置页多一个「Altare 云平台管家」面板，能看到令牌来源、团队、scopes 与过期时间，令牌值不会出现在面板或工具返回值里。
 
 ---
 
@@ -34,38 +34,66 @@
 
 ## 2. 安装
 
-### 方式 A：目录联接（推荐，改代码即时生效）
+DSH 的第三方插件按**组合包（bundle）**接入，要三个条件同时成立才会出现在「插件」页的**已安装插件**列表里：
+
+1. 包里声明 `dsh.bundle`（指向 `cordis.patch.yml`）——本包已声明；
+2. profile 的 `package.json` 在 `dsh.profile.bundles` 数组里选中它；
+3. 同一份 `package.json` 的 `dependencies` 里有它，且包已下载到 profile 的 `node_modules`。
+
+只把源码目录 junction 到 `node_modules`（或在 `cordis.patch.yml` 里手写一行 `- id: altare`）只能让插件**跑起来**，列表不会显示它——列表的候选集只来自 profile 声明，不扫 `node_modules`。
+
+### 方式 A：插件页安装（官方，推荐）
+
+打开 DSH → 侧边栏「插件」→ 安装插件，spec 填下面之一：
+
+```
+git+https://github.com/ykybl/dsh-altare.git
+git+https://github.com/ykybl/dsh-altare.git#<40 位完整 commit>
+```
+
+本机源码目录（改代码即时生效，但需 pnpm 按 `file:` 处理）：
+
+```
+F:\你的路径\24_DSH插件专区\01_dsh-altare\dsh-altare
+```
+
+安装成功会自动写 `dependencies`、追加 `dsh.profile.bundles` 并默认启用；没有 HMR 时需重启宿主。`inspect` 可在安装前预览解析结果，`list_versions` 只对 registry 包有效（本包不在 npm 上，因此只能按 git/本地目录安装；git spec 若只写分支名，后续 `update` 不会支持，要可升级就钉完整 commit）。
+
+### 方式 B：让 AI 用 `plugin_manager` 工具装
+
+```
+plugin_manager install_bundle spec="git+https://github.com/ykybl/dsh-altare.git"
+```
+
+同族操作：`list_bundles`（看是否选中与加载状态）、`disable_bundle` / `enable_bundle`（相当于列表里的开关）、`remove_bundle`（卸载）、`update_bundle`（仅 registry / 钉死 commit 的 git 包）。
+
+### 方式 C：命令行
 
 ```powershell
-# 以管理员或普通 PowerShell 运行；路径按实际位置调整
-$src = "<你的本地路径>\01_src"
-$dst = "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-altare"
-if (Test-Path $dst) { Remove-Item $dst -Force }
-New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+dsh plugin --profile desktop add "git+https://github.com/ykybl/dsh-altare.git"
+dsh plugin --profile desktop list
 ```
 
-### 方式 B：pnpm 本地依赖
+### 手工等价（排查用）
 
-```powershell
-cd $env:USERPROFILE\.dsh\profiles\desktop
-pnpm add "file:<你的本地路径>\01_src"
+编辑 `%USERPROFILE%\.dsh\profiles\desktop\package.json`：
+
+```json
+{
+  "dependencies": {
+    "dsh-altare": "git+https://github.com/ykybl/dsh-altare.git"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-altare"]
+    }
+  }
+}
 ```
 
-### 注册到 profile
+然后在 profile 目录跑 `pnpm install`，重启宿主。本地目录把 spec 写成 `file:F:/Code/Temp/24_DSH插件专区/01_dsh-altare/dsh-altare`（pnpm 会建链接，改代码即时生效，但不会自动重新解析依赖）。
 
-在 `~/.dsh/profiles/desktop/cordis.patch.yml` 末尾追加一条（**注意顶层是数组**）：
-
-```yaml
-- insert:
-    - id: altare
-      name: 'dsh-altare'
-      config:
-        baseUrl: 'https://console.altare.gg/api'
-        tokenSource: auto
-        tokenRef: ALTARE_TOKEN
-```
-
-保存后 DSH 会热重载；没反应就重启一次宿主。
+> 不要同时保留手写的 `- id: altare` patch 行：组合包已注册它，再来一行会注册两遍、工具重名报错。
 
 ---
 
@@ -79,9 +107,9 @@ pnpm add "file:<你的本地路径>\01_src"
 |---|---|---|
 | 环境变量 | `[Environment]::SetEnvironmentVariable("ALTARE_TOKEN","alt_xxx","User")`，重开 DSH | 最简单 |
 | 凭据库 | 在 `~/.dsh/.credentials.yaml` 的 `refs:` 下加一行 `ALTARE_TOKEN: alt_xxx` | 推荐，不进任何配置文件 |
-| 插件配置 | `cordis.patch.yml` 里加 `altareToken: alt_xxx` | 只用一次性令牌 |
+| 插件配置 | 插件页的设置面板或 `cordis.patch.yml` 里加 `altareToken: alt_xxx` | 只用一次性令牌 |
 
-> 令牌不会出现在工具返回值、日志或错误消息里；`altare_whoami` 只回显前缀。
+> 令牌不会出现在工具返回值、日志或错误消息里；`altare_whoami` 与设置面板只回显前缀。
 
 ---
 
@@ -119,6 +147,7 @@ AI：altare_jobs(action="create", app="my-bot", name="nightly-report",
 - **限速**：429 按 `Retry-After` 退避重试（默认最多 2 次），GET 的 5xx 也重试。
 - **输出截断**：单次结果超过 `maxOutputChars`（默认 20000）会截断并提示缩小范围，避免把上下文撑爆。
 - **长轮询**：`altare_deploys` 的 `wait` 默认最多等 300 秒，每 3 秒查一次。
+- **设置面板**：浏览器端读 `GET /altare/state`，只回令牌来源、团队、scopes、过期日期与可见服务器数。
 
 ---
 
@@ -142,8 +171,9 @@ AI：altare_jobs(action="create", app="my-bot", name="nightly-report",
 
 | 现象 | 原因与处理 |
 |---|---|
-| 工具没出现 | 确认 `node_modules/dsh-altare` 存在、`cordis.patch.yml` 里有 `insert` 行、宿主已重载 |
-| `no-token` | 三种来源都没找到令牌，按 `guidance` 配置后重试 |
+| 插件页列表里看不到 | profile `package.json` 的 `dsh.profile.bundles` 没选中它，或 `dependencies` 里没有它。用 `plugin_manager list_bundles` 确认，重新安装或手动补两项后重启 |
+| 工具没出现 | 列表里是关的（开关未开）；或包没装到 profile 的 `node_modules`；或宿主未重启 |
+| `no-token` | 三种来源都没找到令牌，按 `guidance` 或设置面板里的三步配置后重试 |
 | `TOKEN_INVALID` / `TOKEN_EXPIRED` / `TOKEN_REVOKED` | 令牌无效、过期或被吊销，去控制台重新签发 |
 | `403` 无 code | 缺 scope 或应用不在令牌范围内，先 `altare_whoami` |
 | `TOKEN_ROUTE_NOT_ALLOWED` | 该端点只允许人在控制台操作，见上一节 |
@@ -166,14 +196,15 @@ node 06_tests/config-check.mjs # 用宿主真实 schemastery 校验配置，4 �
 目录：
 
 ```
-01_src/
+dsh-altare/
 ├── package.json
 ├── cordis.patch.yml
 ├── lib/
-│   ├── index.js        # 插件入口，注册 13 个工具
+│   ├── index.js        # 主机端入口：注册 13 个工具 + /altare/state 路由
+│   ├── client.js       # 浏览器端：设置面板（__ModuleLoader__ 模块）
 │   ├── config.js       # Schemastery 配置
-│   ├── runtime.js      # 令牌解析 / 自描述缓存 / 应用名解析 / scope 门禁
-│   ├── client.js       # HTTP + 重试 + 错误翻译
+│   ├── runtime.js      # 令牌解析 / 自描述缓存 / 应用名解析 / scope 门禁 / describe
+│   ├── http.js         # HTTP + 重试 + 错误翻译
 │   ├── errors.js       # 规范返回值
 │   ├── scopes.js       # 动作 → scope 唯一登记表
 │   └── tools/          # 13 个工具 + shared.js
@@ -182,11 +213,13 @@ node 06_tests/config-check.mjs # 用宿主真实 schemastery 校验配置，4 �
 └── market.json
 ```
 
+`lib/index.js` 是主机端、`lib/client.js` 是浏览器端，分别由 `package.json` 的 `dsh.bundle` 与 `dsh.client` 声明。`dsh.client.inject` 里列的四个 `@deepseek-ai/dsh-client-*` 包是浏览器模块表里必须存在的名字，缺一个面板就不会渲染。
+
 ---
 
 ## 9. 配置项表
 
-`cordis.patch.yml` 里 `- id: altare` → `config` 的可用字段：
+`cordis.patch.yml` 里 `- id: altare` → `config`（或用插件管理器的设置面板）的可用字段：
 
 | 字段 | 默认值 | 说明 |
 |---|---|---|
@@ -203,25 +236,15 @@ node 06_tests/config-check.mjs # 用宿主真实 schemastery 校验配置，4 �
 
 ## 10. 卸载
 
-```powershell
-# 1) 删除 node_modules 里的 junction（源码目录不受影响）
-Remove-Item "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-altare" -Force
+方式一，插件页：在「插件」列表把开关关掉，再点卸载（等��� `disable_bundle` + `remove_bundle`）。
 
-# 2) 删除 cordis.patch.yml 里的插件行：找到并删掉下面这段
-# - insert:
-#     - id: altare
-#       name: 'dsh-altare'
-#       config:
-#         ...
-
-# 3) 重启 DSH 生效
-```
-
-也可用安装脚本的 `-Uninstall` 参数一键移除 junction 与 patch 行（会自动备份 patch）：
+方式二，命令行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
+dsh plugin --profile desktop remove dsh-altare
 ```
+
+`remove_bundle` 会先取消 `dsh.profile.bundles` 的选择，再 `pnpm remove`。若之前手写过 `- id: altare` 的 patch 行，记得一并删掉。
 
 如配置过令牌，按需清理用户级环境变量 `ALTARE_TOKEN` 或凭据库中的 `ALTARE_TOKEN` 引用。
 
