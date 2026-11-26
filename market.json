@@ -37,11 +37,11 @@
         "en": "Altare Cloud Manager"
       },
       "description": {
-        "zh-cn": "通过官方 API 令牌操作 Altare 云平台权限范围内的全部能力：应用与电源、GitHub 部署与预览、日志、文件系统、环境变量、备份与快照、域名与端口、Job 与 Schedule、团队成员与审计日志。每次调用按 token scope 自动鉴权，缺权限时给出补权限的具体指引；令牌支持 dsh 凭据库、环境变量与插件配置三种来源。",
-        "en": "Operate everything your Altare token is allowed to: apps and power, GitHub deploys and previews, logs, the file system, variables, backups and snapshots, domains and ports, jobs and schedules, team members and the audit log. Every call is gated on the token's scopes, with actionable guidance when one is missing. Tokens come from the dsh credentials seam, the environment or plugin config."
+        "zh-cn": "通过官方 API 令牌操作 Altare 云平台权限范围内的全部能力：应用与电源、GitHub 部署与预览、日志、文件系统、环境变量、备份与快照、域名与端口、Job 与 Schedule、团队成员与审计日志。每次调用按 token scope 自动鉴权，缺权限时给出补权限的具体指引；令牌支持 dsh 凭据库、环境变量与插件配置三种来源。安装后在设置页提供「Altare 云平台管家」面板，可查看令牌来源、团队、scopes 与过期时间。",
+        "en": "Operate everything your Altare token is allowed to: apps and power, GitHub deploys and previews, logs, the file system, variables, backups and snapshots, domains and ports, jobs and schedules, team members and the audit log. Every call is gated on the token's scopes, with actionable guidance when one is missing. Tokens come from the dsh credentials seam, the environment or plugin config. A settings panel shows the token source, team, scopes and expiry date."
       },
       "author": "YG",
-      "homepage": "https://docs.altare.gg/altare-api",
+      "homepage": "https://github.com/ykybl/dsh-altare",
       "icon": "icon.svg",
       "metadata": {
         "category": "integration",
@@ -57,6 +57,12 @@
         ]
       },
       "versions": [
+        {
+          "version": "1.0.1",
+          "engines": {
+            "dsh": ">=0.1.2"
+          }
+        },
         {
           "version": "1.0.0",
           "engines": {
