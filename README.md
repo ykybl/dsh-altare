@@ -1,5 +1,7 @@
 # dsh-altare
 
+## 简介
+
 把 [Altare](https://console.altare.gg/) 云平台的官方 API 接进 DeepSeek Harness：AI 拿到一个团队 API Token（`alt_` 开头），就能操作这个令牌**权限范围内的全部能力**——应用与电源、GitHub 部署与预览、日志、文件系统、环境变量、备份与快照、域名与端口、Job 与 Schedule、团队成员与审计日志。
 
 零运行时依赖，只调用官方 REST API（`https://console.altare.gg/api`）。
@@ -36,7 +38,7 @@
 
 ```powershell
 # 以管理员或普通 PowerShell 运行；路径按实际位置调整
-$src = "F:\Code\Temp\24_Altare云平台插件\01_src"
+$src = "<你的本地路径>\01_src"
 $dst = "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-altare"
 if (Test-Path $dst) { Remove-Item $dst -Force }
 New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
@@ -46,7 +48,7 @@ New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
 
 ```powershell
 cd $env:USERPROFILE\.dsh\profiles\desktop
-pnpm add "file:F:/Code/Temp/24_Altare云平台插件/01_src"
+pnpm add "file:<你的本地路径>\01_src"
 ```
 
 ### 注册到 profile
@@ -154,7 +156,7 @@ AI：altare_jobs(action="create", app="my-bot", name="nightly-report",
 ## 8. 开发与测试
 
 ```powershell
-cd F:\Code\Temp\24_Altare云平台插件
+cd <项目根目录>
 node 06_tests/smoke.mjs        # 起本地假 API，17 项断言，不联外网
 node 06_tests/apply-check.mjs  # 模拟宿主加载，10 项：注册 13 个工具
 node 06_tests/schema-check.mjs # 用宿主真实 dsh-tools 编译，13+13 项
@@ -179,5 +181,48 @@ node 06_tests/config-check.mjs # 用宿主真实 schemastery 校验配置，4 �
 ├── icon.svg
 └── market.json
 ```
+
+---
+
+## 9. 配置项表
+
+`cordis.patch.yml` 里 `- id: altare` → `config` 的可用字段：
+
+| 字段 | 默认值 | 说明 |
+|---|---|---|
+| `baseUrl` | `https://console.altare.gg/api` | Altare API 根地址 |
+| `tokenSource` | `auto` | 令牌来源：`auto`（配置→凭据库→环境变量）/ `config` / `credentials` / `env` |
+| `tokenRef` | `ALTARE_TOKEN` | 凭据引用名，同时作环境变量名；只写引用名，不写令牌值 |
+| `altareToken` | 空 | 直接写令牌（明文，仅一次性用途，不推荐；一般留空） |
+| `requestTimeoutMs` | `30000` | 单次 HTTP 请求超时（毫秒） |
+| `maxRetries` | `2` | 429 与 GET 5xx 的重试次数 |
+| `cacheTtlMs` | `60000` | 令牌自描述缓存时长（毫秒） |
+| `maxOutputChars` | `20000` | 单次工具输出字符上限，超出截断 |
+
+---
+
+## 10. 卸载
+
+```powershell
+# 1) 删除 node_modules 里的 junction（源码目录不受影响）
+Remove-Item "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-altare" -Force
+
+# 2) 删除 cordis.patch.yml 里的插件行：找到并删掉下面这段
+# - insert:
+#     - id: altare
+#       name: 'dsh-altare'
+#       config:
+#         ...
+
+# 3) 重启 DSH 生效
+```
+
+也可用安装脚本的 `-Uninstall` 参数一键移除 junction 与 patch 行（会自动备份 patch）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
+```
+
+如配置过令牌，按需清理用户级环境变量 `ALTARE_TOKEN` 或凭据库中的 `ALTARE_TOKEN` 引用。
 
 License: MIT

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     把 dsh-altare 接入 DSH 的 desktop profile。
 
@@ -9,7 +9,7 @@
     重复运行是幂等的。
 
 .PARAMETER Source
-    插件包目录（含 package.json）。默认 F:\Code\Temp\24_Altare云平台插件\01_src。
+    插件包目录（含 package.json）。默认取脚本所在项目内的 01_src，可由本参数覆盖。
 
 .PARAMETER Profile
     DSH profile 目录。默认 $env:USERPROFILE\.dsh\profiles\desktop。
@@ -28,7 +28,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Source = 'F:\Code\Temp\24_Altare云平台插件\01_src',
+    [string]$Source = (Join-Path (Split-Path -Parent $PSScriptRoot) '01_src'),
     [string]$Profile = (Join-Path $env:USERPROFILE '.dsh\profiles\desktop'),
     [string]$Token = '',
     [switch]$Uninstall

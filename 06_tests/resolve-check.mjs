@@ -11,11 +11,14 @@
  */
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 
+// 从环境变量取 profile 根，避免把本机绝对路径写进发布包。
+const profile = join(process.env.USERPROFILE || process.env.HOME || '.', '.dsh', 'profiles', 'desktop');
 const points = [
-    'C:/Users/28013/.dsh/profiles/desktop/package.json',
-    'C:/Users/28013/.dsh/profiles/desktop/node_modules/dsh-altare/lib/index.js',
-    'C:/Users/28013/.dsh/profiles/desktop/node_modules/@perrylink/dsh-github/lib/index.js',
+    join(profile, 'package.json'),
+    join(profile, 'node_modules', 'dsh-altare', 'lib', 'index.js'),
+    join(profile, 'node_modules', '@perrylink', 'dsh-github', 'lib', 'index.js'),
 ];
 
 for (const from of points) {
@@ -32,11 +35,11 @@ for (const from of points) {
 }
 
 console.log('\n[real path of plugin entry]');
-console.log('  ', await (await import('node:fs/promises')).realpath('C:/Users/28013/.dsh/profiles/desktop/node_modules/dsh-altare/lib/index.js'));
+console.log('  ', await (await import('node:fs/promises')).realpath(join(profile, 'node_modules', 'dsh-altare', 'lib', 'index.js')));
 
 console.log('\n[import plugin through junction]');
 try {
-    const mod = await import(pathToFileURL('C:/Users/28013/.dsh/profiles/desktop/node_modules/dsh-altare/lib/index.js').href);
+    const mod = await import(pathToFileURL(join(profile, 'node_modules', 'dsh-altare', 'lib', 'index.js')).href);
     console.log('   apply:', typeof mod.apply, '| name:', mod.name, '| inject:', JSON.stringify(mod.inject));
 }
 catch (error) {

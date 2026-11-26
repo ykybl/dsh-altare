@@ -42,10 +42,10 @@
   ],
   "license": "MIT",
   "author": "YG",
-  "homepage": "https://docs.altare.gg/altare-api",
+  "homepage": "https://github.com/ykybl/dsh-altare",
   "repository": {
     "type": "git",
-    "url": "https://console.altare.gg/"
+    "url": "https://github.com/ykybl/dsh-altare.git"
   },
   "dsh": {
     "manifestVersion": 1,
