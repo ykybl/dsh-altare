@@ -57,7 +57,7 @@ git+https://github.com/ykybl/dsh-altare.git#<40 位完整 commit>
 F:\你的路径\24_DSH插件专区\01_dsh-altare\dsh-altare
 ```
 
-安装成功会自动写 `dependencies`、追加 `dsh.profile.bundles` 并默认启用；没有 HMR 时需重启宿主。`inspect` 可在安装前预览解析结果，`list_versions` 只对 registry 包有效（本包不在 npm 上，因此只能按 git/本地目录安装；git spec 若只写分支名，后续 `update` 不会支持，要可升级就钉完整 commit）。
+安装成功会自动写 `dependencies`、追加 `dsh.profile.bundles` 并默认启用；没有 HMR 时需重启宿主。`inspect` 可在安装前预览解析结果，`list_versions` 只对 registry 包有效（本包不在 npm 上，因此只能按 git 或本地目录安装；git spec 若只写分支名，后续 `update` 不会支持，要可升级就钉完整 commit）。
 
 ### 方式 B：让 AI 用 `plugin_manager` 工具装
 
@@ -65,7 +65,7 @@ F:\你的路径\24_DSH插件专区\01_dsh-altare\dsh-altare
 plugin_manager install_bundle spec="git+https://github.com/ykybl/dsh-altare.git"
 ```
 
-同族操作：`list_bundles`（看是否选中与加载状态）、`disable_bundle` / `enable_bundle`（相当于列表里的开关）、`remove_bundle`（卸载）、`update_bundle`（仅 registry / 钉死 commit 的 git 包）。
+同族操作：`list_bundles`（看是否选中与加载状态）、`disable_bundle` / `enable_bundle`（相当于列表里的开关）、`remove_bundle`（卸载）、`update_bundle`（仅 registry 或钉死 commit 的 git 包）。
 
 ### 方式 C：命令行
 
@@ -144,7 +144,7 @@ AI：altare_jobs(action="create", app="my-bot", name="nightly-report",
 
 - **scope 门禁**：每个动作执行前读一次 `/api-tokens/self`（缓存 60 秒，可用 `cacheTtlMs` 调），缺 scope 直接返回 `scope-missing`，附上当前 scopes 和「去哪里勾选」的指引，不浪费一次 403。
 - **错误翻译**：401/403/404/409/429 与 `TOKEN_*` 错误码都映射成结构化结果，`guidance` 字段写清下一步。
-- **限速**：429 按 `Retry-After` 退避重试（默认最多 2 次），GET 的 5xx 也重试。
+- **限速**：429 按 `Retry-After` 退避重试（默认最多 2 次），与 GET 的 5xx 一起重试。
 - **输出截断**：单次结果超过 `maxOutputChars`（默认 20000）会截断并提示缩小范围，避免把上下文撑爆。
 - **长轮询**：`altare_deploys` 的 `wait` 默认最多等 300 秒，每 3 秒查一次。
 - **设置面板**：浏览器端读 `GET /altare/state`，只回令牌来源、团队、scopes、过期日期与可见服务器数。
@@ -236,7 +236,7 @@ dsh-altare/
 
 ## 10. 卸载
 
-方式一，插件页：在「插件」列表把开关关掉，再点卸载（等��� `disable_bundle` + `remove_bundle`）。
+方式一，插件页：在「插件」列表把开关关掉，再点卸载（等同于 `disable_bundle` + `remove_bundle`）。
 
 方式二，命令行：
 
