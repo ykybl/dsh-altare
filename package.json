@@ -1,6 +1,6 @@
 {
   "name": "dsh-altare",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "把 Altare 云平台官方 API 接入 DeepSeek Harness：AI 用团队 API Token（alt_ 前缀）操作权限范围内的全部能力——应用、电源、部署、日志、文件、变量、备份、快照、域名与端口、Job、Schedule、团队与审计，并按 token scope 自动鉴权。",
   "type": "module",
   "main": "./lib/index.js",
@@ -42,6 +42,7 @@
   ],
   "license": "MIT",
   "author": "YG",
+  "icon": "icon.svg",
   "homepage": "https://github.com/ykybl/dsh-altare",
   "repository": {
     "type": "git",
@@ -51,6 +52,16 @@
     "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
     }
   },
   "dependencies": {},
